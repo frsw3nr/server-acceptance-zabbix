@@ -29,6 +29,6 @@ test.Zabbix.timeout = 300
 
 // ZabbixÚ‘±î•ñ
 
-account.Zabbix.Test.user     = 'admin'
-account.Zabbix.Test.password = 'getperf'
-
+account.Remote.Test.server   = 'ostrich'
+account.Remote.Test.user     = 'admin'
+account.Remote.Test.password = 'getperf'

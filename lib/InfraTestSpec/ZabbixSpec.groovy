@@ -16,13 +16,6 @@ import jp.co.toshiba.ITInfra.acceptance.*
 @InheritConstructors
 class ZabbixSpec extends InfraTestSpec {
 
-    String ip
-    String os_user
-    String os_password
-    String work_dir
-    String url
-    String token
-    int    timeout = 30
     static final def zabbix_labels = [
         'status' : [
             '0' : 'Monitored',
@@ -34,16 +27,23 @@ class ZabbixSpec extends InfraTestSpec {
             '2' : 'Unavailable',
         ]
     ]
+    String zabbix_ip
+    String zabbix_user
+    String zabbix_password
+    String target_server
+    String url
+    String token
+    int    timeout = 30
 
     def init() {
         super.init()
 
-        this.ip          = test_server.ip
-        def os_account   = test_server.os_account
-        this.os_user     = os_account['user']
-        this.os_password = os_account['password']
-        this.work_dir    = os_account['work_dir']
-        this.timeout     = test_server.timeout
+        def remote_account = test_server.remote_account
+        this.zabbix_ip       = remote_account['server']
+        this.zabbix_user     = remote_account['user']
+        this.zabbix_password = remote_account['password']
+        this.target_server   = test_server.ip
+        this.timeout         = test_server.timeout
     }
 
     def finish() {
@@ -57,15 +57,15 @@ class ZabbixSpec extends InfraTestSpec {
                 jsonrpc: "2.0",
                 method: "user.login",
                 params: [
-                    user: this.os_user,
-                    password: this.os_password,
+                    user:     this.zabbix_user,
+                    password: this.zabbix_password,
                 ],
                 id: "1",
             ]
         )
 
         Webb webb = Webb.create()
-        url = "http://${this.ip}/zabbix/api_jsonrpc.php"
+        url = "http://${this.zabbix_ip}/zabbix/api_jsonrpc.php"
         JSONObject result = webb.post(url)
                                     .header("Content-Type", "application/json")
                                     .useCaches(false)
@@ -94,6 +94,9 @@ class ZabbixSpec extends InfraTestSpec {
     }
 
     def HostGroup(test_item) {
+        if (target_server)
+            return true
+
         def lines = exec('HostGroup') {
 
             def json = JsonOutput.toJson(
@@ -138,82 +141,10 @@ class ZabbixSpec extends InfraTestSpec {
         test_item.results(csv.size().toString())
     }
 
-    def Host(test_item) {
-        def lines = exec('Host') {
-
-            def json = JsonOutput.toJson(
-                [
-                    jsonrpc: "2.0",
-                    method: "Host.get",
-                    params: [
-                        output: "extend",
-                        selectInterfaces: "extend",
-                        selectGroups: "extend",
-                        selectParentTemplates: "extend",
-                    ],
-                    id: "1",
-                    auth: token,
-                ]
-            )
-            Webb webb = Webb.create();
-            JSONObject result = webb.post(url)
-                                        .header("Content-Type", "application/json")
-                                        .useCaches(false)
-                                        .body(json)
-                                        .ensureSuccess()
-                                        .asJsonObject()
-                                        .getBody();
-
-            def content = result.getString("result")
-            new File("${local_dir}/Host").text = content
-            return content
-        }
-
-        def jsonSlurper = new JsonSlurper()
-        def hosts = jsonSlurper.parseText(lines)
-
-        def headers = ['hostid', 'groups', 'parentTemplates', 'host', 'name',
-                       'interfaces', 'status', 'available', 'error']
-        def csv = []
-        hosts.each { host ->
-            def columns = []
-            headers.each {
-                if (it == 'groups') {
-                    def groups = []
-                    host[it].each { group ->
-                        groups.add(group['name'])
-                    }
-                    columns.add(groups.toString())
-
-                } else if (it == 'parentTemplates') {
-                    def templates = []
-                    host[it].each { template ->
-                        templates.add(template['name'])
-                    }
-                    columns.add(templates.toString())
-
-                } else if (it == 'interfaces') {
-                    def addresses = []
-                    host[it].each { addr ->
-                        addresses.add((addr['useip'] == '1') ? addr['ip'] : addr['dns'])
-                    }
-                    columns.add(addresses.toString())
-
-                } else if (it == 'status' || it == 'available') {
-                    def id = host[it]
-                    columns.add(zabbix_labels[it][id])
-
-                } else {
-                    columns.add(host[it] ?: 'NaN')
-                }
-            }
-            csv << columns
-        }
-        test_item.devices(csv, headers)
-        test_item.results(csv.size().toString())
-    }
-
     def User(test_item) {
+        if (target_server)
+            return true
+
         def lines = exec('User') {
 
             def json = JsonOutput.toJson(
@@ -274,4 +205,91 @@ class ZabbixSpec extends InfraTestSpec {
         test_item.devices(csv, headers)
         test_item.results(csv.size().toString())
     }
+
+    def Host(test_item) {
+        def lines = exec('Host') {
+
+            def json = JsonOutput.toJson(
+                [
+                    jsonrpc: "2.0",
+                    method: "Host.get",
+                    params: [
+                        output: "extend",
+                        selectInterfaces: "extend",
+                        selectGroups: "extend",
+                        selectParentTemplates: "extend",
+                        filter: [
+                            host: [
+                                target_server
+                            ]
+                        ]
+                    ],
+                    id: "1",
+                    auth: token,
+                ]
+            )
+            Webb webb = Webb.create();
+            JSONObject result = webb.post(url)
+                                        .header("Content-Type", "application/json")
+                                        .useCaches(false)
+                                        .body(json)
+                                        .ensureSuccess()
+                                        .asJsonObject()
+                                        .getBody();
+
+            def content = result.getString("result")
+            new File("${local_dir}/Host").text = content
+            return content
+        }
+
+        def jsonSlurper = new JsonSlurper()
+        def hosts = jsonSlurper.parseText(lines)
+
+        def headers = ['hostid', 'groups', 'parentTemplates', 'host', 'name',
+                       'interfaces', 'status', 'available', 'error']
+        def csv = []
+        def host_info = [:]
+        hosts.each { host ->
+            def columns = []
+            headers.each {
+                def value = 'NaN'
+                if (it == 'groups') {
+                    def groups = []
+                    host[it].each { group ->
+                        groups.add(group['name'])
+                    }
+                    value = groups.toString()
+
+                } else if (it == 'parentTemplates') {
+                    def templates = []
+                    host[it].each { template ->
+                        templates.add(template['name'])
+                    }
+                    value = templates.toString()
+
+                } else if (it == 'interfaces') {
+                    def addresses = []
+                    host[it].each { addr ->
+                        addresses.add((addr['useip'] == '1') ? addr['ip'] : addr['dns'])
+                    }
+                    value = addresses.toString()
+
+                } else if (it == 'status' || it == 'available') {
+                    def id = host[it]
+                    value = zabbix_labels[it][id]
+
+                } else {
+                    value = host[it]
+                }
+                host_info[it] = value
+                columns.add(value)
+
+            }
+            csv << columns
+        }
+        test_item.devices(csv, headers)
+        host_info['Host'] = csv.size()
+        test_item.results(host_info)
+    }
+
 }
