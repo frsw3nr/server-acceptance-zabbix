@@ -35,6 +35,7 @@ class ZabbixSpec extends InfraTestSpec {
     String token
     int    timeout = 30
     def host_ids = [:]
+    def hostnames = [:]
 
     def init() {
         super.init()
@@ -288,8 +289,10 @@ class ZabbixSpec extends InfraTestSpec {
                     host_info[it] = value
                 columns.add(value)
 
-                if (it == 'hostid')
+                if (it == 'hostid') {
                     host_ids[target_server] = value
+                    hostnames[value] = host['host']
+                }
             }
             csv << columns
         }
@@ -299,9 +302,7 @@ class ZabbixSpec extends InfraTestSpec {
     }
 
     def linux_syslog(test_item) {
-        if (target_server == null)
-            return
-        if(!host_ids.containsKey(target_server)) {
+        if(target_server && !host_ids.containsKey(target_server)) {
             log.error "Can't find host_id of ${target_server}, 'linux_syslog' test needs 'Host' test before."
         }
 
@@ -309,11 +310,16 @@ class ZabbixSpec extends InfraTestSpec {
 
             def params = [
                 output: "extend",
-                hostids: [host_ids[target_server]],
+                selectHosts: "extend",
                 search: [
                     name: "SystemLog",
                 ],
             ]
+            if (target_server) {
+                params['hostids'] = [
+                    host_ids[target_server]
+                ]
+            }
             def json = JsonOutput.toJson(
                 [
                     jsonrpc: "2.0",
@@ -341,10 +347,21 @@ class ZabbixSpec extends InfraTestSpec {
         def results = jsonSlurper.parseText(lines)
 
         def lastlogsize = '0'
-        if (results.size() == 1) {
-            lastlogsize = results[0]['lastlogsize']
+        def csv   = []
+        results.each { result ->
+            def hostid   = result['hostid']
+            def hostname =  hostnames[hostid] ?: null
+            if (hostname) {
+                def logsize  = result['lastlogsize']
+                csv << [hostname, logsize]
+                lastlogsize = logsize
+            }
         }
-        test_item.results(lastlogsize)
+        def headers = ['Hostname', 'LastLogSize']
+        test_item.devices(csv, headers)
+
+        def result = (results.size() == 1) ? lastlogsize : 'Check the sheets Zabbix_linux_syslog'
+        test_item.results(result)
 
     }
 }
