@@ -25,6 +25,7 @@ class ZabbixSpec extends InfraTestSpec {
             '0' : 'Unknown',
             '1' : 'Available',
             '2' : 'Unavailable',
+<<<<<<< HEAD
         ],
         'trigger.status' : [
             '0' : 'Enabled',
@@ -41,6 +42,8 @@ class ZabbixSpec extends InfraTestSpec {
             '3' : 'Average',
             '4' : 'High',
             '5' : 'Disaster',
+=======
+>>>>>>> d8c0ff5ed07bd8ec140b739ae74a643c7d21d969
         ]
     ]
     String zabbix_ip
@@ -50,8 +53,11 @@ class ZabbixSpec extends InfraTestSpec {
     String url
     String token
     int    timeout = 30
+<<<<<<< HEAD
     def host_ids = [:]
     def hostnames = [:]
+=======
+>>>>>>> d8c0ff5ed07bd8ec140b739ae74a643c7d21d969
 
     def init() {
         super.init()
@@ -227,6 +233,7 @@ class ZabbixSpec extends InfraTestSpec {
     def Host(test_item) {
         def lines = exec('Host') {
 
+<<<<<<< HEAD
             def params = [
                 output: "extend",
                 selectInterfaces: "extend",
@@ -239,11 +246,27 @@ class ZabbixSpec extends InfraTestSpec {
                 ]
             }
 
+=======
+>>>>>>> d8c0ff5ed07bd8ec140b739ae74a643c7d21d969
             def json = JsonOutput.toJson(
                 [
                     jsonrpc: "2.0",
                     method: "Host.get",
+<<<<<<< HEAD
                     params: params,
+=======
+                    params: [
+                        output: "extend",
+                        selectInterfaces: "extend",
+                        selectGroups: "extend",
+                        selectParentTemplates: "extend",
+                        filter: [
+                            host: [
+                                target_server
+                            ]
+                        ]
+                    ],
+>>>>>>> d8c0ff5ed07bd8ec140b739ae74a643c7d21d969
                     id: "1",
                     auth: token,
                 ]
@@ -301,6 +324,7 @@ class ZabbixSpec extends InfraTestSpec {
                 } else {
                     value = host[it]
                 }
+<<<<<<< HEAD
                 if (target_server)
                     host_info[it] = value
                 columns.add(value)
@@ -309,6 +333,11 @@ class ZabbixSpec extends InfraTestSpec {
                     host_ids[target_server] = value
                     hostnames[value] = host['host']
                 }
+=======
+                host_info[it] = value
+                columns.add(value)
+
+>>>>>>> d8c0ff5ed07bd8ec140b739ae74a643c7d21d969
             }
             csv << columns
         }
@@ -317,6 +346,7 @@ class ZabbixSpec extends InfraTestSpec {
         test_item.results(host_info)
     }
 
+<<<<<<< HEAD
     def linux_syslog(test_item) {
         if(target_server && !host_ids.containsKey(target_server)) {
             log.error "Can't find host_id of ${target_server}, 'linux_syslog' test needs 'Host' test before."
@@ -439,4 +469,6 @@ class ZabbixSpec extends InfraTestSpec {
         }
         test_item.devices(csv, headers)
     }
+=======
+>>>>>>> d8c0ff5ed07bd8ec140b739ae74a643c7d21d969
 }

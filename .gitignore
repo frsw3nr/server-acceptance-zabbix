@@ -5,7 +5,12 @@
 *.war
 *.ear
 .mtj.tmp/
+<<<<<<< HEAD
 /build/
+=======
+/build/*
+!.gitkeep
+>>>>>>> d8c0ff5ed07bd8ec140b739ae74a643c7d21d969
 /libdeps/
 /resource/
 /config/.secret/
