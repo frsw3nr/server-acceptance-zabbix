@@ -25,6 +25,22 @@ class ZabbixSpec extends InfraTestSpec {
             '0' : 'Unknown',
             '1' : 'Available',
             '2' : 'Unavailable',
+        ],
+        'trigger.status' : [
+            '0' : 'Enabled',
+            '1' : 'Disabled',
+        ],
+        'trigger.state' : [
+            '0' : 'Normal',
+            '1' : 'Unknown',
+        ],
+        'trigger.priority' : [
+            '0' : 'Not classified',
+            '1' : 'Information',
+            '2' : 'Warning',
+            '3' : 'Average',
+            '4' : 'High',
+            '5' : 'Disaster',
         ]
     ]
     String zabbix_ip
@@ -363,5 +379,64 @@ class ZabbixSpec extends InfraTestSpec {
         def result = (results.size() == 1) ? lastlogsize : 'Check the sheets Zabbix_linux_syslog'
         test_item.results(result)
 
+    }
+
+    def trigger(test_item) {
+        if(target_server && !host_ids.containsKey(target_server)) {
+            log.error "Can't find host_id of ${target_server}, 'trigger' test needs 'Host' test before."
+        }
+
+        def lines = exec('trigger') {
+
+            def params = [
+                output: "extend",
+                // selectHosts: "extend",
+                // selectHosts: "extend",
+            ]
+            if (target_server) {
+                params['hostids'] = [
+                    host_ids[target_server]
+                ]
+            }
+            def json = JsonOutput.toJson(
+                [
+                    jsonrpc: "2.0",
+                    method: "Trigger.get",
+                    params: params,
+                    id: "1",
+                    auth: token,
+                ]
+            )
+            Webb webb = Webb.create();
+            JSONObject result = webb.post(url)
+                                        .header("Content-Type", "application/json")
+                                        .useCaches(false)
+                                        .body(json)
+                                        .ensureSuccess()
+                                        .asJsonObject()
+                                        .getBody();
+
+            def content = result.getString("result")
+            new File("${local_dir}/trigger").text = content
+            return content
+        }
+
+        def jsonSlurper = new JsonSlurper()
+        def results = jsonSlurper.parseText(lines)
+
+        def headers = ['priority', 'description', 'expression', 'flags', 'state', 'status']
+        def csv   = []
+        results.each { result ->
+            def columns = []
+            headers.each { item_name ->
+                def value = result[item_name]
+                if (item_name == 'priority' || item_name == 'status') {
+                    value = zabbix_labels["trigger.${item_name}"][value]
+                }
+                columns.add(value)
+            }
+            csv << columns
+        }
+        test_item.devices(csv, headers)
     }
 }
