@@ -2,6 +2,7 @@ package InfraTestSpec
 
 import groovy.util.logging.Slf4j
 import groovy.transform.InheritConstructors
+import org.apache.commons.lang.math.NumberUtils
 import org.apache.commons.io.FileUtils.*
 import static groovy.json.JsonOutput.*
 import org.hidetake.groovy.ssh.Ssh
@@ -25,7 +26,6 @@ class ZabbixSpec extends InfraTestSpec {
             '0' : 'Unknown',
             '1' : 'Available',
             '2' : 'Unavailable',
-<<<<<<< HEAD
         ],
         'trigger.status' : [
             '0' : 'Enabled',
@@ -42,10 +42,9 @@ class ZabbixSpec extends InfraTestSpec {
             '3' : 'Average',
             '4' : 'High',
             '5' : 'Disaster',
-=======
->>>>>>> d8c0ff5ed07bd8ec140b739ae74a643c7d21d969
         ]
     ]
+
     String zabbix_ip
     String zabbix_user
     String zabbix_password
@@ -53,11 +52,8 @@ class ZabbixSpec extends InfraTestSpec {
     String url
     String token
     int    timeout = 30
-<<<<<<< HEAD
     def host_ids = [:]
     def hostnames = [:]
-=======
->>>>>>> d8c0ff5ed07bd8ec140b739ae74a643c7d21d969
 
     def init() {
         super.init()
@@ -233,7 +229,6 @@ class ZabbixSpec extends InfraTestSpec {
     def Host(test_item) {
         def lines = exec('Host') {
 
-<<<<<<< HEAD
             def params = [
                 output: "extend",
                 selectInterfaces: "extend",
@@ -246,27 +241,11 @@ class ZabbixSpec extends InfraTestSpec {
                 ]
             }
 
-=======
->>>>>>> d8c0ff5ed07bd8ec140b739ae74a643c7d21d969
             def json = JsonOutput.toJson(
                 [
                     jsonrpc: "2.0",
                     method: "Host.get",
-<<<<<<< HEAD
                     params: params,
-=======
-                    params: [
-                        output: "extend",
-                        selectInterfaces: "extend",
-                        selectGroups: "extend",
-                        selectParentTemplates: "extend",
-                        filter: [
-                            host: [
-                                target_server
-                            ]
-                        ]
-                    ],
->>>>>>> d8c0ff5ed07bd8ec140b739ae74a643c7d21d969
                     id: "1",
                     auth: token,
                 ]
@@ -324,41 +303,32 @@ class ZabbixSpec extends InfraTestSpec {
                 } else {
                     value = host[it]
                 }
-<<<<<<< HEAD
-                if (target_server)
-                    host_info[it] = value
-                columns.add(value)
-
                 if (it == 'hostid') {
                     host_ids[target_server] = value
                     hostnames[value] = host['host']
                 }
-=======
                 host_info[it] = value
                 columns.add(value)
-
->>>>>>> d8c0ff5ed07bd8ec140b739ae74a643c7d21d969
             }
             csv << columns
         }
         test_item.devices(csv, headers)
-        host_info['Host'] = csv.size()
+        host_info['Host'] = (hosts.size() == 1) ? hosts[0]['host'] : ''
         test_item.results(host_info)
     }
 
-<<<<<<< HEAD
-    def linux_syslog(test_item) {
+    def syslog(test_item) {
         if(target_server && !host_ids.containsKey(target_server)) {
-            log.error "Can't find host_id of ${target_server}, 'linux_syslog' test needs 'Host' test before."
+            log.error "Can't find host_id of ${target_server}, 'syslog' test needs 'Host' test before."
         }
 
-        def lines = exec('linux_syslog') {
+        def lines = exec('syslog') {
 
             def params = [
                 output: "extend",
                 selectHosts: "extend",
                 search: [
-                    name: "SystemLog",
+                    name: "log",
                 ],
             ]
             if (target_server) {
@@ -385,30 +355,35 @@ class ZabbixSpec extends InfraTestSpec {
                                         .getBody();
 
             def content = result.getString("result")
-            new File("${local_dir}/linux_syslog").text = content
+            new File("${local_dir}/syslog").text = content
             return content
         }
 
         def jsonSlurper = new JsonSlurper()
         def results = jsonSlurper.parseText(lines)
-
-        def lastlogsize = '0'
-        def csv   = []
-        results.each { result ->
-            def hostid   = result['hostid']
-            def hostname =  hostnames[hostid] ?: null
-            if (hostname) {
-                def logsize  = result['lastlogsize']
-                csv << [hostname, logsize]
-                lastlogsize = logsize
+        if (results.size() > 0) {
+            def lastlogsize = 0
+            def csv   = []
+            results.each { result ->
+                def hostid   = result['hostid']
+                def hostname = hostnames[hostid] ?: null
+                def itemname = result['name']
+                if (hostname && result['value_type'] == '2') {
+                    def logsize  = NumberUtils.toDouble(result['lastlogsize'])
+                    csv << [hostname, itemname, logsize]
+                    lastlogsize += logsize
+                }
+            }
+            def headers = ['Hostname', 'ItemName', 'LastLogSize']
+            test_item.devices(csv, headers)
+            if (lastlogsize == 0) {
+                test_item.results("Log is empty")
+                test_item.verify_status(false)
+            } else {
+                test_item.results("Log exist")
+                test_item.verify_status(true)
             }
         }
-        def headers = ['Hostname', 'LastLogSize']
-        test_item.devices(csv, headers)
-
-        def result = (results.size() == 1) ? lastlogsize : 'Check the sheets Zabbix_linux_syslog'
-        test_item.results(result)
-
     }
 
     def trigger(test_item) {
@@ -469,6 +444,4 @@ class ZabbixSpec extends InfraTestSpec {
         }
         test_item.devices(csv, headers)
     }
-=======
->>>>>>> d8c0ff5ed07bd8ec140b739ae74a643c7d21d969
 }

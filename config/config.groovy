@@ -13,7 +13,7 @@ evidence.target='./build/監視設定チェックシート_Zabbix_<date>.xlsx'
 
 // 検査結果ログディレクトリ
 
-evidence.staging_dir='./build/log.<date>'
+evidence.staging_dir='./build/log'
 
 // 並列化しないタスク
 // 並列度を指定をしても、指定したドメインタスクはシリアルに実行する
@@ -32,3 +32,7 @@ test.Zabbix.timeout = 300
 account.Remote.Test.server   = 'ostrich'
 account.Remote.Test.user     = 'admin'
 account.Remote.Test.password = 'getperf'
+
+account.Remote.Test2.server   = 'yps4za'
+account.Remote.Test2.user     = 'Admin'
+account.Remote.Test2.password = 'zabbix'
