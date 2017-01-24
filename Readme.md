@@ -7,13 +7,7 @@ Zabbix 監視設定収集ツール
 Zabbix 監視設定情報を収集します。
 [Zabbix JSON-RPC API](https://www.zabbix.com/documentation/1.8/api/getting_started)
 を用いて Zabbix の監視設定情報を収集します。
-=======
-VMWare仮想化インフラで構築したサーバに対して、システム構成情報を収集して、
-収集した結果から各設定内容の検査を行います。
 
-システム構成は以下の通りです。
-
-![System configuration](image/system.png)
 
 システム要件
 ------------
