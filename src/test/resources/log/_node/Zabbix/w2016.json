@@ -1,0 +1,50 @@
+[
+    {
+        "test_id": "Host",
+        "domain": "Zabbix",
+        "value": "w2016"
+    },
+    {
+        "test_id": "hostid",
+        "domain": "Zabbix",
+        "value": "10120"
+    },
+    {
+        "test_id": "groups",
+        "domain": "Zabbix",
+        "value": "[Linux servers]"
+    },
+    {
+        "test_id": "parentTemplates",
+        "domain": "Zabbix",
+        "value": "[Template OS Windows]"
+    },
+    {
+        "test_id": "name",
+        "domain": "Zabbix",
+        "value": "w2016"
+    },
+    {
+        "test_id": "interfaces",
+        "domain": "Zabbix",
+        "value": "[192.168.0.25]"
+    },
+    {
+        "test_id": "status",
+        "domain": "Zabbix",
+        "value": "Monitored",
+        "verify": true
+    },
+    {
+        "test_id": "available",
+        "domain": "Zabbix",
+        "value": "Available",
+        "verify": true
+    },
+    {
+        "test_id": "syslog",
+        "domain": "Zabbix",
+        "value": "Log exist",
+        "verify": true
+    }
+]

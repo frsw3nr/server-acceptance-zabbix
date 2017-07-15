@@ -1,0 +1,56 @@
+[
+    {
+        "test_id": "Host",
+        "domain": "Zabbix",
+        "value": "jenkins"
+    },
+    {
+        "test_id": "hostid",
+        "domain": "Zabbix",
+        "value": "10107"
+    },
+    {
+        "test_id": "groups",
+        "domain": "Zabbix",
+        "value": "[Windows Servers]"
+    },
+    {
+        "test_id": "parentTemplates",
+        "domain": "Zabbix",
+        "value": "[Template OS Windows]"
+    },
+    {
+        "test_id": "name",
+        "domain": "Zabbix",
+        "value": "jenkins"
+    },
+    {
+        "test_id": "interfaces",
+        "domain": "Zabbix",
+        "value": "[192.168.0.23]"
+    },
+    {
+        "test_id": "status",
+        "domain": "Zabbix",
+        "value": "Monitored",
+        "verify": true
+    },
+    {
+        "test_id": "available",
+        "domain": "Zabbix",
+        "value": "Available",
+        "verify": true
+    },
+    {
+        "test_id": "syslog",
+        "domain": "Zabbix",
+        "value": "Monitored",
+        "verify": true
+    },
+    {
+        "test_id": "trigger",
+        "domain": "Zabbix",
+        "value": "[status.Disabled:1]",
+        "verify": false
+    }
+]

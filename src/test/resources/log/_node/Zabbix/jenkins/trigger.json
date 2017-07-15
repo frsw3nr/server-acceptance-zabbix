@@ -1,0 +1,90 @@
+[
+    {
+        "priority": "Information",
+        "description": "Host name of zabbix_agentd was changed on {HOST.NAME}",
+        "expression": "{13194}>0",
+        "flags": "0",
+        "state": "0",
+        "status": "Enabled"
+    },
+    {
+        "priority": "Average",
+        "description": "Zabbix agent on {HOST.NAME} is unreachable for 5 minutes",
+        "expression": "{13195}=1",
+        "flags": "0",
+        "state": "0",
+        "status": "Enabled"
+    },
+    {
+        "priority": "Information",
+        "description": "Version of zabbix_agent(d) was changed on {HOST.NAME}",
+        "expression": "{13196}>0",
+        "flags": "0",
+        "state": "0",
+        "status": "Enabled"
+    },
+    {
+        "priority": "Average",
+        "description": "SystemLog Error",
+        "expression": "{13214}=1",
+        "flags": "0",
+        "state": "0",
+        "status": "Enabled"
+    },
+    {
+        "priority": "Average",
+        "description": "Too many processes on {HOST.NAME}",
+        "expression": "{13197}>300",
+        "flags": "0",
+        "state": "0",
+        "status": "Enabled"
+    },
+    {
+        "priority": "Average",
+        "description": "Processor load is too high on {HOST.NAME}",
+        "expression": "{13198}>5",
+        "flags": "0",
+        "state": "0",
+        "status": "Enabled"
+    },
+    {
+        "priority": "Average",
+        "description": "Lack of free swap space on {HOST.NAME}",
+        "expression": "{13199}<100000",
+        "flags": "0",
+        "state": "0",
+        "status": "Enabled"
+    },
+    {
+        "priority": "Average",
+        "description": "Host information was changed on {HOST.NAME}",
+        "expression": "{13200}>0",
+        "flags": "0",
+        "state": "0",
+        "status": "Disabled"
+    },
+    {
+        "priority": "Average",
+        "description": "{HOST.NAME} has just been restarted",
+        "expression": "{13201}<0",
+        "flags": "0",
+        "state": "0",
+        "status": "Enabled"
+    },
+    {
+        "priority": "Warning",
+        "description": "Free disk space is less than 20% on volume C:",
+        "expression": "{13212}<20",
+        "flags": "4",
+        "state": "0",
+        "status": "Enabled"
+    },
+    {
+        "priority": "Average",
+        "description": "Lack of free memory on server {HOST.NAME}",
+        "expression": "{13202}<10000",
+        "flags": "0",
+        "state": "0",
+        "status": "Enabled"
+    }
+]

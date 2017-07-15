@@ -1,0 +1,13 @@
+[
+    {
+        "hostid": "10106",
+        "groups": "[Linux servers]",
+        "parentTemplates": "[Template OS Linux]",
+        "host": "alpaca2",
+        "name": "alpaca2",
+        "interfaces": "[192.168.10.32]",
+        "status": "Monitored",
+        "available": "Available",
+        "error": ""
+    }
+]

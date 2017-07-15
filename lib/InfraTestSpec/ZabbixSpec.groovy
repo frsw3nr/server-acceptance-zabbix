@@ -362,6 +362,7 @@ class ZabbixSpec extends InfraTestSpec {
         def jsonSlurper = new JsonSlurper()
         def results = jsonSlurper.parseText(lines)
         if (results.size() > 0) {
+            def message = 'NotSupport'
             def lastlogsize = 0
             def csv   = []
             results.each { result ->
@@ -369,6 +370,21 @@ class ZabbixSpec extends InfraTestSpec {
                 def hostname = hostnames[hostid] ?: null
                 def itemname = result['name']
                 if (hostname && result['value_type'] == '2') {
+// [authtype:0, data_type:0, delay:30, delay_flex:, delta:0, description:, error:, filter:, flags:0, formula:1, history:90,
+//  hostid:10107, hosts:[[available:1, disable_until:0, error:, errors_from:0, flags:0, host:jenkins, hostid:10107, ipmi_au
+// thtype:0, ipmi_available:0, ipmi_disable_until:0, ipmi_error:, ipmi_errors_from:0, ipmi_password:, ipmi_privilege:2, ipm
+// i_username:, jmx_available:0, jmx_disable_until:0, jmx_error:, jmx_errors_from:0, lastaccess:0, maintenance_from:0, main
+// tenance_status:0, maintenance_type:0, maintenanceid:0, maintenances:[], name:jenkins, proxy_hostid:0, snmp_available:0,
+// snmp_disable_until:0, snmp_error:, snmp_errors_from:0, status:0, templateid:0]], interfaceid:0, inventory_link:0, ipmi_s
+// ensor:, itemid:23847, key_:eventlog[system,Error], lastclock:1500151757, lastlogsize:18487, lastns:389912378, lastvalue:
+// Windows Error Reporting Service ????? ?? ??????????, lifetime:30, logtimefmt:, mtime:0, multiplier:0, name:System log, p
+// arams:, password:, port:, prevvalue:Windows Error Reporting Service ????? ??? ??????????, privatekey:, publickey:, snmp_
+// community:, snmp_oid:, snmpv3_authpassphrase:, snmpv3_authprotocol:0, snmpv3_contextname:, snmpv3_privpassphrase:, snmpv
+// 3_privprotocol:0, snmpv3_securitylevel:0, snmpv3_securityname:, state:0, status:0, templateid:23846, trapper_hosts:, tre
+// nds:365, type:7, units:, username:, value_type:2, valuemapid:0]
+// println result['status']
+                    if (result['status'])
+                        message = zabbix_labels['status'][result['status']]
                     def logsize  = NumberUtils.toDouble(result['lastlogsize'])
                     csv << [hostname, itemname, logsize]
                     lastlogsize += logsize
@@ -376,13 +392,7 @@ class ZabbixSpec extends InfraTestSpec {
             }
             def headers = ['Hostname', 'ItemName', 'LastLogSize']
             test_item.devices(csv, headers)
-            if (lastlogsize == 0) {
-                test_item.results("Log is empty")
-                test_item.verify_status(false)
-            } else {
-                test_item.results("Log exist")
-                test_item.verify_status(true)
-            }
+            test_item.results(message)
         }
     }
 
@@ -426,15 +436,22 @@ class ZabbixSpec extends InfraTestSpec {
             return content
         }
 
-        def jsonSlurper = new JsonSlurper()
-        def results = jsonSlurper.parseText(lines)
+        def jsons = new JsonSlurper().parseText(lines)
 
         def headers = ['priority', 'description', 'expression', 'flags', 'state', 'status']
         def csv   = []
-        results.each { result ->
+        def results = [:].withDefault{0}
+        jsons.each { json ->
             def columns = []
             headers.each { item_name ->
-                def value = result[item_name]
+                def value = json[item_name]
+                if (item_name == 'state' || item_name == 'status') {
+                    if (value != '0') {
+                        def id = "${item_name}."
+                        id += zabbix_labels["trigger.${item_name}"][value]
+                        results[id] += 1
+                    }
+                }
                 if (item_name == 'priority' || item_name == 'status') {
                     value = zabbix_labels["trigger.${item_name}"][value]
                 }
@@ -442,6 +459,8 @@ class ZabbixSpec extends InfraTestSpec {
             }
             csv << columns
         }
+        def res = (results.size() == 0) ? 'AllEnabled' : results.toString()
+        test_item.results(res)
         test_item.devices(csv, headers)
     }
 }

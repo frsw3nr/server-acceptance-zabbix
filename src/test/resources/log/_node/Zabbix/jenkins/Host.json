@@ -1,0 +1,13 @@
+[
+    {
+        "hostid": "10107",
+        "groups": "[Windows Servers]",
+        "parentTemplates": "[Template OS Windows]",
+        "host": "jenkins",
+        "name": "jenkins",
+        "interfaces": "[192.168.0.23]",
+        "status": "Monitored",
+        "available": "Available",
+        "error": ""
+    }
+]

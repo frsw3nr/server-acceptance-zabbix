@@ -1,0 +1,13 @@
+[
+    {
+        "hostid": "10120",
+        "groups": "[Linux servers]",
+        "parentTemplates": "[Template OS Windows]",
+        "host": "w2016",
+        "name": "w2016",
+        "interfaces": "[192.168.0.25]",
+        "status": "Monitored",
+        "available": "Available",
+        "error": ""
+    }
+]

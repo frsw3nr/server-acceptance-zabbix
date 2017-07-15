@@ -1,0 +1,56 @@
+[
+    {
+        "test_id": "Host",
+        "domain": "Zabbix",
+        "value": "alpaca2"
+    },
+    {
+        "test_id": "hostid",
+        "domain": "Zabbix",
+        "value": "10106"
+    },
+    {
+        "test_id": "groups",
+        "domain": "Zabbix",
+        "value": "[Linux servers]"
+    },
+    {
+        "test_id": "parentTemplates",
+        "domain": "Zabbix",
+        "value": "[Template OS Linux]"
+    },
+    {
+        "test_id": "name",
+        "domain": "Zabbix",
+        "value": "alpaca2"
+    },
+    {
+        "test_id": "interfaces",
+        "domain": "Zabbix",
+        "value": "[192.168.10.32]"
+    },
+    {
+        "test_id": "status",
+        "domain": "Zabbix",
+        "value": "Monitored",
+        "verify": true
+    },
+    {
+        "test_id": "available",
+        "domain": "Zabbix",
+        "value": "Available",
+        "verify": true
+    },
+    {
+        "test_id": "syslog",
+        "domain": "Zabbix",
+        "value": "Unmonitored",
+        "verify": false
+    },
+    {
+        "test_id": "trigger",
+        "domain": "Zabbix",
+        "value": "[state.Unknown:1]",
+        "verify": false
+    }
+]
