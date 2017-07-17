@@ -61,7 +61,7 @@
         "expression": "{13200}>0",
         "flags": "0",
         "state": "0",
-        "status": "Disabled"
+        "status": "Enabled"
     },
     {
         "priority": "Average",

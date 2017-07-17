@@ -36,3 +36,23 @@ account.Remote.Test.password = 'getperf'
 account.Remote.Test2.server   = 'yps4za'
 account.Remote.Test2.user     = 'Admin'
 account.Remote.Test2.password = 'zabbix'
+
+// Redmine フィルター設定
+
+redmine.fixed_items    = [
+	'platform' : 'Zabbix'
+]
+redmine.default_values = [
+	'remote_account_id' : 'Test',
+	'verify_id' : 'RuleAP',
+]
+redmine.required_items = ['server_name', 'platform', 'remote_account_id']
+
+redmine.default_filter_options = [
+    'project': '構成管理検証サイト',
+    'status': '%',
+    'version': '%',
+    'tracker': 'IAサーバー',
+]
+
+

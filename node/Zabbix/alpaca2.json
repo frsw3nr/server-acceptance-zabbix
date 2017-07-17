@@ -44,8 +44,8 @@
     {
         "test_id": "syslog",
         "domain": "Zabbix",
-        "value": "Unmonitored",
-        "verify": false
+        "value": "Monitored",
+        "verify": true
     },
     {
         "test_id": "trigger",

@@ -32,25 +32,21 @@
     {
         "test_id": "status",
         "domain": "Zabbix",
-        "value": "Monitored",
-        "verify": true
+        "value": "Monitored"
     },
     {
         "test_id": "available",
         "domain": "Zabbix",
-        "value": "Available",
-        "verify": true
+        "value": "Available"
     },
     {
         "test_id": "syslog",
         "domain": "Zabbix",
-        "value": "Monitored",
-        "verify": true
+        "value": "Monitored"
     },
     {
         "test_id": "trigger",
         "domain": "Zabbix",
-        "value": "[status.Disabled:1]",
-        "verify": false
+        "value": "AllEnabled"
     }
 ]
